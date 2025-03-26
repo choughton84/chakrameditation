@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chakra Healing Affirmation Journal</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Chakra Healing Affirmation Journal</h1>
+        </header>
+        
+        <div class="main-content">
+            <div class="controls-section">
+                <div class="control-group">
+                    <label for="chakra-selector">Select Chakra:</label>
+                    <select id="chakra-selector">
+                        <option value="root">Root Chakra (Muladhara)</option>
+                        <option value="sacral">Sacral Chakra (Svadhisthana)</option>
+                        <option value="solarPlexus">Solar Plexus Chakra (Manipura)</option>
+                        <option value="heart" selected>Heart Chakra (Anahata)</option>
+                        <option value="throat">Throat Chakra (Vishuddha)</option>
+                        <option value="thirdEye">Third Eye Chakra (Ajna)</option>
+                        <option value="crown">Crown Chakra (Sahasrara)</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="meditation-time">Meditation Time (minutes):</label>
+                    <input type="number" id="meditation-time" min="1" max="60" value="10">
+                </div>
+                
+                <div class="control-group">
+                    <button id="start-button" class="primary-button">Start Session</button>
+                    <button id="stop-button" class="secondary-button">Stop Session</button>
+                </div>
+                
+                <div class="control-group">
+                    <button id="toggle-sound" class="secondary-button">Enable Sound</button>
+                    <div class="volume-control">
+                        <label for="volume-control">Volume:</label>
+                        <input type="range" id="volume-control" min="0" max="100" value="50">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="visualization-section">
+                <canvas id="chakra-canvas" width="300" height="300"></canvas>
+                <div id="time-remaining" class="timer"></div>
+            </div>
+            
+            <div class="info-section">
+                <div class="chakra-info">
+                    <h3 id="chakra-name">Heart Chakra (Anahata)</h3>
+                    <div id="chakra-properties">
+                        <p><strong>Element:</strong> <span id="chakra-element">Air</span></p>
+                        <p><strong>Color:</strong> <span id="chakra-color">Green</span></p>
+                        <p><strong>Location:</strong> <span id="chakra-location">Center of chest</span></p>
+                        <p><strong>Associated With:</strong> <span id="chakra-association">Love, compassion, forgiveness</span></p>
+                    </div>
+                </div>
+                
+                <div class="affirmation-box">
+                    <h3>Affirmation</h3>
+                    <div id="affirmation-container">Select a chakra and start your session</div>
+                </div>
+                
+                <div class="meditation-box">
+                    <h3>Personal Meditation</h3>
+                    <div id="meditation-container">Your personal meditation will appear here when you start a session.</div>
+                </div>
+            </div>
+            
+            <div class="journal-section">
+                <h2>Journal Your Experience</h2>
+                <textarea id="journal-entry" placeholder="Write about your meditation experience, insights, and feelings..."></textarea>
+                <div class="journal-buttons">
+                    <button id="save-journal" class="primary-button">Save Entry</button>
+                    <button id="download-journal" class="secondary-button">Download Journal</button>
+                </div>
+                
+                <div class="journal-entries">
+                    <h3>Previous Entries</h3>
+                    <div id="journal-entries-list"></div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Created by Cristina Houghton - Chakra Healing Affirmation Journal</p>
+        </footer>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
