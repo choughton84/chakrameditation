@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chakra Healing Journal</title>
+  <style>
+    body { 
+      font-family: Arial; 
+      text-align: center; 
+      background-color: #f8f8f8;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+    #chakra-canvas { 
+      width: 500px; 
+      height: 500px; 
+      border: 1px solid #ccc;
+      margin: 0 auto;
+      display: block;
+      background-color: white;
+      border-radius: 50%;
+    }
+    #affirmation-container { 
+      margin: 20px auto; 
+      font-size: 24px; 
+      min-height: 60px;
+      padding: 15px;
+      border-radius: 10px;
+      background-color: #f0f0f0;
+      max-width: 600px;
+      transition: background-color 0.5s ease;
+    }
+    #meditation-container { 
+      margin: 20px auto; 
+      padding: 15px; 
+      background: #f5f5f5;
+      border-radius: 10px;
+      text-align: left;
+      line-height: 1.5;
+      max-width: 600px;
+    }
+    .controls {
+      margin: 20px 0;
+    }
+    select, button, input {
+      padding: 8px 15px;
+      margin: 0 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    #journal-section {
+      margin: 30px auto;
+      max-width: 600px;
+    }
+    #journal-entry {
+      width: 100%;
+      height: 150px;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      margin-bottom: 10px;
+      font-family: Arial;
+    }
+    #journal-history {
+      text-align: left;
+      background-color: white;
+      padding: 15px;
+      border-radius: 10px;
+      max-height: 300px;
+      overflow-y: auto;
+      margin-top: 20px;
+    }
+    .journal-item {
+      padding: 10px;
+      border-bottom: 1px solid #eee;
+      margin-bottom: 10px;
+    }
+    .journal-date {
+      font-size: 0.8em;
+      color: #666;
+    }
+    #timer-container {
+      margin: 20px auto;
+      max-width: 600px;
+    }
+    #sound-controls {
+      margin: 15px 0;
+    }
+    .chakra-info {
+      margin: 20px auto;
+      max-width: 600px;
+      text-align: left;
+      padding: 15px;
+      background-color: #f0f0f0;
+      border-radius: 10px;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Chakra Healing Affirmation Journal</h1>
+  
+  <div class="controls">
+    <select id="chakra-selector">
+      <option value="root">Root Chakra</option>
+      <option value="sacral">Sacral Chakra</option>
+      <option value="solarPlexus">Solar Plexus Chakra</option>
+      <option value="heart" selected>Heart Chakra</option>
+      <option value="throat">Throat Chakra</option>
+      <option value="thirdEye">Third Eye Chakra</option>
+      <option value="crown">Crown Chakra</option>
+    </select>
+    <button id="start-button">Start</button>
+    <button id="stop-button">Stop</button>
+  </div>
+  
+  <div id="timer-container">
+    <label for="meditation-time">Meditation Time (minutes): </label>
+    <input type="number" id="meditation-time" min="1" max="60" value="10">
+    <span id="time-remaining"></span>
+  </div>
+  
+  <div id="sound-controls">
+    <button id="toggle-sound">Enable Sound</button>
+    <input type="range" id="volume-control" min="0" max="100" value="50">
+  </div>
+  
+  <canvas id="chakra-canvas"></canvas>
+  
+  <div id="affirmation-container">Select a chakra and press Start</div>
+  
+  <div id="meditation-container">Your meditation will appear here</div>
+  
+  <div class="chakra-info" id="chakra-info">
+    <h3>Chakra Information</h3>
+    <p id="chakra-description"></p>
+  </div>
+  
+  <div id="journal-section">
+    <h3>Journal Your Experience</h3>
+    <textarea id="journal-entry" placeholder="Write about your meditation experience, insights, and feelings..."></textarea>
+    <button id="save-journal">Save Entry</button>
+    <button id="download-journal">Download Journal</button>
+    
+    <div id="journal-history">
+      <h4>Previous Entries</h4>
+      <div id="journal-entries-list"></div>
+    </div>
+  </div>
+  
+  <script src="chakra-app.js"></script>
+</body>
+</html>
+class ChakraVisualizer {
+  constructor(canvas) {
+    this.canvas = canvas;
+    this.ctx = canvas.getContext('2d');
+    this.width = canvas.width = 500;
+    this.height = canvas.height = 500;
+    this.centerX = this.width / 2;
+    this.centerY = this.height / 2;
+    this.animationId = null;
+    this.chakra = 'heart';
+    this.angle = 0;
+    
+    // Chakra colors
+    this.chakraColors = {
+      root: '#FF0000',       // Red
+      sacral: '#FF7F00',     // Orange
+      solarPlexus: '#FFFF00', // Yellow
+      heart: '#00FF00',      // Green
+      throat: '#00FFFF',     // Blue
+      thirdEye: '#0000FF',   // Indigo
+      crown: '#8B00FF'       // Violet
+    };
+    
+    this.secondaryColors = {
+      root: '#8B0000',       // Dark Red
+      sacral: '#FF4500',     // Orange Red
+      solarPlexus: '#FFD700', // Gold
+      heart: '#006400',      // Dark Green
+      throat: '#1E90FF',     // Dodger Blue
+      thirdEye: '#4B0082',   // Indigo
+      crown: '#9932CC'       // Dark Orchid
+    };
+  }
+  
+  setChakra(chakra) {
+    this.chakra = chakra;
+    document.getElementById('affirmation-container').style.backgroundColor = this.chakraColors[chakra] + '22';
+    document.getElementById('affirmation-container').style.color = this.secondaryColors[chakra];
+  }
+  
+  startVisualization() {
+    if (this.animationId) {
+      cancelAnimationFrame(this.animationId);
+    }
+    this.animate();
+  }
+  
+  stopVisualization() {
+    if (this.animationId) {
+      cancelAnimationFrame(this.animationId);
+      this.animationId = null;
+    }
+  }
+  
+  animate() {
+    this.ctx.clearRect(0, 0, this.width, this.height);
+    this.drawChakraSymbol();
+    this.angle += 0.01;
+    this.animationId = requestAnimationFrame(() => this.animate());
+  }
+  
+  drawChakraSymbol() {
+    const color = this.chakraColors[this.chakra];
+    const secondaryColor = this.secondaryColors[this.chakra];
+    
+    // Draw outer circle
+    this.ctx.beginPath();
+    this.ctx.arc(this.centerX, this.centerY, 200, 0, Math.PI * 2);
+    this.ctx.fillStyle = color + '33'; // Semi-transparent
+    this.ctx.fill();
+    
+    // Draw petals based on chakra
+    const petalCount = {
+      root: 4,
+      sacral: 6,
+      solarPlexus: 10,
+      heart: 12,
+      throat: 16,
+      thirdEye: 96,
+      crown: 972
+    }[this.chakra] || 8;
+    
+    for (let i = 0; i < petalCount; i++) {
+      const angle = (i / petalCount) * Math.PI * 2 + this.angle;
+      const x = this.centerX + Math.cos(angle) * 150;
+      const y = this.centerY + Math.sin(angle) * 150;
+      
+      this.ctx.beginPath();
+      this.ctx.moveTo(this.centerX, this.centerY);
+      this.ctx.quadraticCurveTo(
+        this.centerX + Math.cos(angle + 0.2) * 100,
+        this.centerY + Math.sin(angle + 0.2) * 100,
+        x, y
+      );
+      this.ctx.quadraticCurveTo(
+        this.centerX + Math.cos(angle - 0.2) * 100,
+        this.centerY + Math.sin(angle - 0.2) * 100,
+        this.centerX, this.centerY
+      );
+      
+      this.ctx.fillStyle = color + '88'; // Semi-transparent
+      this.ctx.fill();
+      this.ctx.strokeStyle = secondaryColor;
+      this.ctx.stroke();
+    }
+    
+    // Draw inner circle
+    this.ctx.beginPath();
+    this.ctx.arc(this.centerX, this.centerY, 50, 0, Math.PI * 2);
+    this.ctx.fillStyle = color;
+    this.ctx.fill();
+    
+    // Draw spinning elements
+    for (let i = 0; i < 8; i++) {
+      const angle = (i / 8) * Math.PI * 2 + this.angle * 3;
+      const x = this.centerX + Math.cos(angle) * 100;
+      const y = this.centerY + Math.sin(angle) * 100;
+      
+      this.ctx.beginPath();
+      this.ctx.arc(x, y, 10, 0, Math.PI * 2);
+      this.ctx.fillStyle = secondaryColor;
+      this.ctx.fill();
+    }
+  }
+}
+
+class AffirmationEngine {
+  constructor() {
+    this.chakra = 'heart';
+    this.affirmationInterval = null;
+    this.affirmations = {
+      root: [
+        "I am safe and secure in my body",
+        "I have everything I need",
+        "I am grounded and centered",
+        "I trust in the process of life",
+        "I am connected to my physical body"
+      ],
+      sacral: [
+        "I embrace my creativity and passion",
+        "I honor my emotions and feelings",
+        "I allow pleasure and joy into my life",
+        "I am worthy of abundance",
+        "I flow with life's changes gracefully"
+      ],
+      solarPlexus: [
+        "I am confident in my personal power",
+        "I trust my intuition and inner wisdom",
+        "I am worthy of respect and recognition",
+        "I accomplish my goals with ease",
+        "I am strong and capable"
+      ],
+      heart: [
+        "I am open to giving and receiving love",
+        "I forgive myself and others",
+        "I am worthy of love and compassion",
+        "My heart is open and full",
+        "I live in balance and harmony"
+      ],
+      throat: [
+        "I express myself clearly and truthfully",
+        "I speak my truth with confidence",
+        "I am an effective communicator",
+        "I listen to others with compassion",
+        "My voice matters and deserves to be heard"
+      ],
+      thirdEye: [
+        "I trust my intuition and inner wisdom",
+        "I see clearly in all situations",
+        "I am connected to my higher guidance",
+        "I am open to new perspectives",
+        "I honor my inner vision"
+      ],
+      crown: [
+        "I am connected to divine wisdom",
+        "I am one with the universe",
+        "I trust in the higher purpose of my life",
+        "I am open to spiritual guidance",
+        "I embody divine consciousness"
+      ]
+    };
+    
+    this.chakraInfo = {
+      root: {
+        name: "Root Chakra (Muladhara)",
+        location: "Base of spine",
+        element: "Earth",
+        description: "The Root Chakra is your foundation and feeling of being grounded. It represents your security and basic needs. When balanced, you feel safe and secure about your life."
+      },
+      sacral: {
+        name: "Sacral Chakra (Svadhisthana)",
+        location: "Lower abdomen",
+        element: "Water",
+        description: "The Sacral Chakra is your center of creativity, pleasure, and emotion. It governs your reproductive organs and represents fluidity and adaptability."
+      },
+      solarPlexus: {
+        name: "Solar Plexus Chakra (Manipura)",
+        location: "Upper abdomen",
+        element: "Fire",
+        description: "The Solar Plexus Chakra is your source of personal power, self-esteem, and confidence. It governs your digestive system and represents transformation."
+      },
+      heart: {
+        name: "Heart Chakra (Anahata)",
+        location: "Center of chest",
+        element: "Air",
+        description: "The Heart Chakra is your center of love, compassion, and harmony. It bridges the lower chakras of matter and the upper chakras of spirit, representing integration and balance."
+      },
+      throat: {
+        name: "Throat Chakra (Vishuddha)",
+        location: "Throat",
+        element: "Ether",
+        description: "The Throat Chakra is your center of communication, expression, and truth. It governs your voice and represents the power of speaking your authentic truth."
+      },
+      thirdEye: {
+        name: "Third Eye Chakra (Ajna)",
+        location: "Between eyebrows",
+        element: "Light",
+        description: "The Third Eye Chakra is your center of intuition, wisdom, and insight. It represents your ability to see beyond the physical world and connect with your inner vision."
+      },
+      crown: {
+        name: "Crown Chakra (Sahasrara)",
+        location: "Top of head",
+        element: "Cosmic Energy",
+        description: "The Crown Chakra is your connection to higher consciousness and spiritual awareness. It represents your highest potential and connection to the divine."
+      }
+    };
+  }
+  
+  setChakra(chakra) {
+    this.chakra = chakra;
+    this.updateChakraInfo();
+  }
+  
+  updateChakraInfo() {
+    const info = this.chakraInfo[this.chakra];
+    document.getElementById('chakra-description').innerHTML = `
+      <strong>${info.name}</strong><br>
+      Location: ${info.location}<br>
+      Element: ${info.element}<br>
+      ${info.description}
+    `;
+  }
+  
+  startAffirmationSequence(callback) {
+    if (this.affirmationInterval) {
+startAffirmationSequence(callback) {
+    if (this.affirmationInterval) {
+      clearInterval(this.affirmationInterval);
+    }
+    
+    // Show first affirmation immediately
+    const affirmations = this.affirmations[this.chakra];
+    let index = 0;
+    callback(affirmations[index]);
+    
+    // Then cycle through affirmations
+    this.affirmationInterval = setInterval(() => {
+      index = (index + 1) % affirmations.length;
+      callback(affirmations[index]);
+    }, 10000); // Change every 10 seconds
+  }
+  
+  stopAffirmationSequence() {
+    if (this.affirmationInterval) {
+      clearInterval(this.affirmationInterval);
+      this.affirmationInterval = null;
+    }
+  }
+  
+  getPersonalMeditation() {
+    const meditations = {
+      root: "While laying down with your eyes closed, focus on your breathing. Feel the connection between your body and the earth beneath you. Visualize roots extending from the base of your spine deep into the earth, anchoring you securely. Feel a warm red glow at the base of your spine, providing stability and security.",
+      
+      sacral: "While laying down with your eyes closed, bring your awareness to your lower abdomen. Feel a warm orange glow emanating from this area. Allow yourself to feel your emotions fully without judgment. Embrace your creativity and passion, letting them flow freely like water.",
+      
+      solarPlexus: "While laying down with your eyes closed, focus on your upper abdomen. Visualize a bright yellow sun radiating from your solar plexus. Feel your personal power growing stronger with each breath. Acknowledge your strengths and embrace your confidence, knowing you have the power to manifest your desires.",
+      
+      heart: "While laying down with your eyes closed, bring your awareness to the center of your chest. Feel a vibrant green or pink light glowing from your heart center. With each inhale, receive love and compassion; with each exhale, send love to yourself and others. Allow forgiveness and acceptance to flow through you.",
+      
+      throat: "While laying down with your eyes closed, focus on your throat area. Visualize a bright blue light glowing at your throat center. Feel your voice becoming stronger and clearer. Know that your words have power and your truth deserves to be expressed. Breathe into any tension in this area, allowing free expression.",
+      
+      thirdEye: "While laying down with your eyes closed, bring your awareness to the space between your eyebrows. Visualize a deep indigo light glowing from this center. Open yourself to inner wisdom and intuition. Watch for images, colors, or insights that may appear. Trust the wisdom that comes from within.",
+      
+      crown: "While laying down with your eyes closed, focus on the top of your head. Visualize a violet or white light entering through your crown and filling your entire body. Feel your connection to universal consciousness expanding. Embrace the oneness with all that is, allowing divine wisdom to flow through you."
+    };
+    
+    return meditations[this.chakra] || "Focus on your breathing and create an awareness within your body. Bring your awareness to the area of the selected chakra, feeling its energy and allowing it to balance and align.";
+  }
+}
+
+class SoundEngine {
+  constructor() {
+    this.audioContext = null;
+    this.oscillator = null;
+    this.gainNode = null;
+    this.isPlaying = false;
+    this.chakraFrequencies = {
+      root: 396,       // Hz
+      sacral: 417,     // Hz
+      solarPlexus: 528, // Hz
+      heart: 639,      // Hz
+      throat: 741,     // Hz
+      thirdEye: 852,   // Hz
+      crown: 963       // Hz
+    };
+    this.currentChakra = 'heart';
+  }
+  
+  initialize() {
+    try {
+      this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      this.gainNode = this.audioContext.createGain();
+      this.gainNode.gain.value = 0.5; // Default volume
+      this.gainNode.connect(this.audioContext.destination);
+      return true;
+    } catch (e) {
+      console.error('Web Audio API is not supported in this browser', e);
+      return false;
+    }
+  }
+  
+  setChakra(chakra) {
+    this.currentChakra = chakra;
+    if (this.isPlaying) {
+      this.stop();
+      this.play();
+    }
+  }
+  
+  play() {
+    if (!this.audioContext) {
+      if (!this.initialize()) return;
+    }
+    
+    if (this.audioContext.state === 'suspended') {
+      this.audioContext.resume();
+    }
+    
+    if (this.isPlaying) return;
+    
+    this.oscillator = this.audioContext.createOscillator();
+    this.oscillator.type = 'sine';
+    this.oscillator.frequency.value = this.chakraFrequencies[this.currentChakra];
+    
+    this.oscillator.connect(this.gainNode);
+    this.oscillator.start();
+    this.isPlaying = true;
+  }
+  
+  stop() {
+    if (!this.isPlaying) return;
+    
+    this.oscillator.stop();
+    this.oscillator.disconnect();
+    this.isPlaying = false;
+  }
+  
+  setVolume(value) {
+    if (this.gainNode) {
+      // Convert 0-100 range to 0-1 range
+      this.gainNode.gain.value = value / 100;
+    }
+  }
+}
+
+class JournalManager {
+  constructor() {
+    this.entries = this.loadEntries();
+  }
+  
+  loadEntries() {
+    const savedEntries = localStorage.getItem('chakraJournalEntries');
+    return savedEntries ? JSON.parse(savedEntries) : [];
+  }
+  
+  saveEntry(chakra, text) {
+    if (!text.trim()) return false;
+    
+    const entry = {
+      id: Date.now(),
+      date: new Date().toLocaleString(),
+      chakra: chakra,
+      text: text
+    };
+    
+    this.entries.unshift(entry); // Add to beginning of array
+    localStorage.setItem('chakraJournalEntries', JSON.stringify(this.entries));
+    return true;
+  }
+  
+  displayEntries(container) {
+    container.innerHTML = '';
+    
+    if (this.entries.length === 0) {
+      container.innerHTML = '<p>No journal entries yet.</p>';
+      return;
+    }
+    
+    this.entries.forEach(entry => {
+      const entryElement = document.createElement('div');
+      entryElement.className = 'journal-item';
+      entryElement.innerHTML = `
+        <div class="journal-date">${entry.date} - ${this.getChakraName(entry.chakra)}</div>
+        <div>${entry.text}</div>
+      `;
+      container.appendChild(entryElement);
+    });
+  }
+  
+  getChakraName(chakraKey) {
+    const names = {
+      root: 'Root Chakra',
+      sacral: 'Sacral Chakra',
+      solarPlexus: 'Solar Plexus Chakra',
+      heart: 'Heart Chakra',
+      throat: 'Throat Chakra',
+      thirdEye: 'Third Eye Chakra',
+      crown: 'Crown Chakra'
+    };
+    return names[chakraKey] || chakraKey;
+  }
+  
+  downloadJournal() {
+    if (this.entries.length === 0) {
+      alert('No journal entries to download.');
+      return;
+    }
+    
+    let content = 'Chakra Healing Journal\n\n';
+    
+    this.entries.forEach(entry => {
+      content += `Date: ${entry.date}\n`;
+      content += `Chakra: ${this.getChakraName(entry.chakra)}\n`;
+      content += `Entry: ${entry.text}\n\n`;
+      content += '-------------------------------------------\n\n';
+    });
+    
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'ChakraJournal.txt';
+    document.body.appendChild(a);
+    a.click();
+    
+    // Cleanup
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 100);
+  }
+}
+
+class MeditationTimer {
+  constructor() {
+    this.duration = 10; // Default 10 minutes
+    this.remainingTime = 0;
+    this.timerInterval = null;
+    this.onComplete = null;
+  }
+  
+  setDuration(minutes) {
+    this.duration = minutes;
+  }
+  
+  start(onTick, onComplete) {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+    }
+    
+    this.remainingTime = this.duration * 60; // Convert to seconds
+    this.onComplete = onComplete;
+    
+    onTick(this.formatTime(this.remainingTime));
+    
+    this.timerInterval = setInterval(() => {
+      this.remainingTime--;
+      
+      onTick(this.formatTime(this.remainingTime));
+      
+      if (this.remainingTime <= 0) {
+        this.stop();
+        if (this.onComplete) this.onComplete();
+      }
+    }, 1000);
+  }
+  
+  stop() {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+    }
+  }
+  
+  formatTime(seconds) {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  }
+}
+
+// Initialize everything when the DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+  const canvas = document.getElementById('chakra-canvas');
+  const visualizer = new ChakraVisualizer(canvas);
+  const affirmationEngine = new AffirmationEngine();
+  const soundEngine = new SoundEngine();
+  const journalManager = new JournalManager();
+  const meditationTimer = new MeditationTimer();
+  
+  let isSessionActive = false;
+  
+  // Display saved journal entries
+  journalManager.displayEntries(document.getElementById('journal-entries-list'));
+  
+  // Update chakra info on initial load
+  affirmationEngine.updateChakraInfo();
+  
+  // Chakra selector change event
+  document.getElementById('chakra-selector').addEventListener('change', (e) => {
+    const chakra = e.target.value;
+    visualizer.setChakra(chakra);
+    affirmationEngine.setChakra(chakra);
+    soundEngine.setChakra(chakra);
+  });
+  
+  // Start button click event
+  document.getElementById('start-button').addEventListener('click', () => {
+    if (isSessionActive) return;
+    
+    const chakra = document.getElementById('chakra-selector').value;
+    const meditationTime = parseInt(document.getElementById('meditation-time').value) || 10;
+    
+    visualizer.setChakra(chakra);
+    affirmationEngine.setChakra(chakra);
+    soundEngine.setChakra(chakra);
+    meditationTimer.setDuration(meditationTime);
+    
+    visualizer.startVisualization();
+    affirmationEngine.startAffirmationSequence((affirmation) => {
+      document.getElementById('affirmation-container').textContent = affirmation;
+    });
+    
+    document.getElementById('meditation-container').textContent = 
+      affirmationEngine.getPersonalMeditation();
+    
+    // Start timer
+    meditationTimer.start(
+      (timeString) => {
+        document.getElementById('time-remaining').textContent = `Time remaining: ${timeString}`;
+      },
+      () => {
+        // Timer complete
+        stopSession();
+        alert('Meditation session complete!');
+      }
+    );
+    
+    isSessionActive = true;
+  });
+  
+  // Stop button click event
+  document.getElementById('stop-button').addEventListener('click', () => {
+    if (!isSessionActive) return;
+    stopSession();
+  });
+  
+  function stopSession() {
+    visualizer.stopVisualization();
+    affirmationEngine.stopAffirmationSequence();
+    soundEngine.stop();
+    meditationTimer.stop();
+    document.getElementById('time-remaining').textContent = '';
+    isSessionActive = false;
+  }
+  
+  // Sound toggle button
+  document.getElementById('toggle-sound').addEventListener('click', (e) => {
+    if (soundEngine.isPlaying) {
+      soundEngine.stop();
+      e.target.textContent = 'Enable Sound';
+    } else {
+      soundEngine.play();
+      e.target.textContent = 'Disable Sound';
+    }
+  });
+  
+  // Volume control
+  document.getElementById('volume-control').addEventListener('input', (e) => {
+    soundEngine.setVolume(e.target.value);
+  });
+  
+  // Save journal entry
+  document.getElementById('save-journal').addEventListener('click', () => {
+    const entryText = document.getElementById('journal-entry').value;
+    const currentChakra = document.getElementById('chakra-selector').value;
+    
+    if (journalManager.saveEntry(currentChakra, entryText)) {
+      document.getElementById('journal-entry').value = '';
+      journalManager.displayEntries(document.getElementById('journal-entries-list'));
+      alert('Journal entry saved!');
+    } else {
+      alert('Please enter some text before saving.');
+    }
+  });
+  
+  // Download journal
+  document.getElementById('download-journal').addEventListener('click', () => {
+    journalManager.downloadJournal();
+  });
+});
